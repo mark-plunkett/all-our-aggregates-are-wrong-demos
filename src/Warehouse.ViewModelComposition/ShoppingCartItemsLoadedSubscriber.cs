@@ -9,6 +9,13 @@ namespace Warehouse.ViewModelComposition
 {
     public class ShoppingCartItemsLoadedSubscriber : ICompositionEventsSubscriber
     {
+        private readonly WarehouseApi api;
+
+        public ShoppingCartItemsLoadedSubscriber(WarehouseApi api)
+        {
+            this.api = api;
+        }
+
         [HttpGet("/ShoppingCart")]
         public void Subscribe(ICompositionEventsPublisher publisher)
         {
@@ -16,10 +23,7 @@ namespace Warehouse.ViewModelComposition
             {
                 var ids = String.Join(",", @event.CartItemsViewModel.Keys);
 
-                var url = $"http://localhost:5003/api/shopping-cart/products/{ids}";
-                var client = new HttpClient();
-
-                var response = await client.GetAsync(url);
+                var response = await this.api.GetAsync($"/api/shopping-cart/products/{ids}");
 
                 dynamic[] inventoryDetails = await response.Content.AsExpandoArray();
                 if (inventoryDetails == null || inventoryDetails.Length == 0)

@@ -5,24 +5,12 @@ namespace Warehouse.Data
 {
     public class WarehouseContext : DbContext
     {
-        public static WarehouseContext Create()
-        {
-            var db = new WarehouseContext();
-            db.Database.EnsureCreated();
-
-            return db;
-        }
-
-        private WarehouseContext() { }
+        public WarehouseContext(DbContextOptions options)
+            : base(options) { }
 
         public DbSet<StockItem> StockItems { get; set; }
 
         public DbSet<ShoppingCartItem> ShoppingCartItems { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlServer(@"Data Source=(localdb)\all-our-aggregates-are-wrong;Initial Catalog=Warehouse;Integrated Security=True");
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -5,24 +5,12 @@ namespace Shipping.Data
 {
     public class ShippingContext : DbContext
     {
-        public static ShippingContext Create()
-        {
-            var db = new ShippingContext();
-            db.Database.EnsureCreated();
-
-            return db;
-        }
-
-        private ShippingContext() { }
+        public ShippingContext(DbContextOptions options)
+            : base(options) { }
 
         public DbSet<ProductShippingOptions> ProductShippingOptions { get; set; }
 
         public DbSet<ShoppingCartItem> ShoppingCartItems { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlServer(@"Data Source=(localdb)\all-our-aggregates-are-wrong;Initial Catalog=Shipping;Integrated Security=True");
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

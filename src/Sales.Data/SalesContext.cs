@@ -5,24 +5,12 @@ namespace Sales.Data
 {
     public class SalesContext : DbContext
     {
-        public static SalesContext Create()
-        {
-            var db = new SalesContext();
-            db.Database.EnsureCreated();
-
-            return db;
-        }
-
-        private SalesContext() { }
+        public SalesContext(DbContextOptions options)
+            : base(options) { }
 
         public DbSet<ProductPrice> ProductsPrices { get; set; }
 
         public DbSet<ShoppingCart> ShoppingCarts { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlServer(@"Data Source=(localdb)\all-our-aggregates-are-wrong;Initial Catalog=Sales;Integrated Security=True");
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

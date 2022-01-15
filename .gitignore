@@ -31,3 +31,10 @@ x86/
 
 # Rider cache/options directory
 .idea/
+
+.fake
+.ionide
+
+.vscode
+
+.tye

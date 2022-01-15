@@ -1,0 +1,45 @@
+# tye application configuration file
+# read all about it at https://github.com/dotnet/tye
+#
+# when you've given us a try, we'd love to know what you think:
+#    https://aka.ms/AA7q20u
+#
+name: all our aggregates are wrong - demos
+services:
+- name: webapp
+  project: WebApp/WebApp.csproj
+- name: sales-api
+  project: Sales.Api/Sales.Api.csproj
+- name: marketing-api
+  project: Marketing.Api/Marketing.Api.csproj
+- name: warehouse-api
+  project: Warehouse.Api/Warehouse.Api.csproj
+- name: shipping-api
+  project: Shipping.Api/Shipping.Api.csproj
+- name: sales-service
+  project: Sales.Service/Sales.Service.csproj
+- name: warehouse-service
+  project: Warehouse.Service/Warehouse.Service.csproj
+- name: shipping-service
+  project: Shipping.Service/Shipping.Service.csproj
+- name: marketing-service
+  project: Marketing.Service/Marketing.Service.csproj
+
+- name: sqlserver
+  image: mcr.microsoft.com/mssql/server 
+  env:
+    - name: SA_PASSWORD
+      value: "V0teM!cr0s3rv!ce"
+    - name: ACCEPT_EULA
+      value: 'Y'
+  bindings:
+    - name: default
+      port: 1433
+    - name: marketing
+      connectionString: Server=${host};User Id=sa;Database=Marketing;Password=${env:SA_PASSWORD};
+    - name: warehouse
+      connectionString: Server=${host};User Id=sa;Database=Warehouse;Password=${env:SA_PASSWORD};
+    - name: shipping
+      connectionString: Server=${host};User Id=sa;Database=Shipping;Password=${env:SA_PASSWORD};
+    - name: sales
+      connectionString: Server=${host};User Id=sa;Database=Sales;Password=${env:SA_PASSWORD};

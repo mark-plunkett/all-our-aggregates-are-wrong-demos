@@ -14,14 +14,19 @@ namespace Sales.ViewModelComposition
 {
     class ShoppingCartGetHandler : ICompositionRequestsHandler
     {
+        private readonly SalesApi api;
+
+        public ShoppingCartGetHandler(SalesApi api)
+        {
+            this.api = api;
+        }
+
         [HttpGet("/ShoppingCart")]
         public async Task Handle(HttpRequest request)
         {
             var id = request.Cookies["cart-id"];
 
-            var url = $"http://localhost:5001/api/shopping-cart/{id}";
-            var client = new HttpClient();
-            var response = await client.GetAsync(url);
+            var response = await this.api.GetAsync($"/api/shopping-cart/{id}");
 
             dynamic shoppingCart = await response.Content.AsExpando();
             var vm = request.GetComposedResponseModel();

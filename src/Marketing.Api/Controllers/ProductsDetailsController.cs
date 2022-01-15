@@ -10,33 +10,34 @@ namespace Marketing.Api.Controllers
     [ApiController]
     public class ProductsDetailsController : ControllerBase
     {
+        private readonly MarketingContext db;
+
+        public ProductsDetailsController(MarketingContext db)
+        {
+            this.db = db;
+        }
+
         [HttpGet]
         [Route("product/{id}")]
         public dynamic Get(int id)
         {
-            using (var db = MarketingContext.Create())
-            {
-                var item = db.ProductsDetails
-                    .Where(o => o.Id == id)
-                    .SingleOrDefault();
+            var item = db.ProductsDetails
+                .Where(o => o.Id == id)
+                .SingleOrDefault();
 
-                return item;
-            }
+            return item;
         }
 
         [HttpGet]
         [Route("products/{ids}")]
         public IEnumerable<dynamic> Get(string ids)
         {
-            using (var db = MarketingContext.Create())
-            {
-                var productIds = ids.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(s => int.Parse(s)).ToArray();
-                var items = db.ProductsDetails
-                    .Where(status => productIds.Any(id => id == status.Id))
-                    .ToArray();
+            var productIds = ids.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(s => int.Parse(s)).ToArray();
+            var items = db.ProductsDetails
+                .Where(status => productIds.Any(id => id == status.Id))
+                .ToArray();
 
-                return items;
-            }
+            return items;
         }
     }
 }

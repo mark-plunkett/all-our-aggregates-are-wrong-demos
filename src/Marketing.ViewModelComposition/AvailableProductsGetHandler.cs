@@ -5,7 +5,6 @@ using ServiceComposer.AspNetCore;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,12 +12,17 @@ namespace Marketing.ViewModelComposition
 {
     class AvailableProductsGetHandler : ICompositionRequestsHandler
     {
+        private readonly MarketingApi api;
+
+        public AvailableProductsGetHandler(MarketingApi api)
+        {
+            this.api = api;
+        }
+
         [HttpGet("/")]
         public async Task Handle(HttpRequest request)
         {
-            var url = $"http://localhost:5002/api/available/products";
-            var client = new HttpClient();
-            var response = await client.GetAsync(url);
+            var response = await this.api.GetAsync("api/available/products");
 
             var availableProducts = await response.Content.As<int[]>();
             var availableProductsViewModel = MapToDictionary(availableProducts);

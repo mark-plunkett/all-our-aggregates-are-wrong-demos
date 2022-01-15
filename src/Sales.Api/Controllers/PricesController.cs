@@ -10,33 +10,34 @@ namespace Sales.Api.Controllers
     [ApiController]
     public class PricesController : ControllerBase
     {
+        private readonly SalesContext db;
+
+        public PricesController(SalesContext db)
+        {
+            this.db = db;
+        }
+
         [HttpGet]
         [Route("product/{id}")]
         public dynamic Get(int id)
         {
-            using (var db = SalesContext.Create())
-            {
-                var item = db.ProductsPrices
-                    .Where(o => o.Id == id)
-                    .SingleOrDefault();
+            var item = db.ProductsPrices
+                .Where(o => o.Id == id)
+                .SingleOrDefault();
 
-                return item;
-            }
+            return item;
         }
 
         [HttpGet]
         [Route("products/{ids}")]
         public IEnumerable<dynamic> Get(string ids)
         {
-            using (var db = SalesContext.Create())
-            {
-                var productIds = ids.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(s => int.Parse(s)).ToArray();
-                var items = db.ProductsPrices
-                    .Where(status => productIds.Any(id => id == status.Id))
-                    .ToArray();
+            var productIds = ids.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(s => int.Parse(s)).ToArray();
+            var items = db.ProductsPrices
+                .Where(status => productIds.Any(id => id == status.Id))
+                .ToArray();
 
-                return items;
-            }
+            return items;
         }
     }
 }

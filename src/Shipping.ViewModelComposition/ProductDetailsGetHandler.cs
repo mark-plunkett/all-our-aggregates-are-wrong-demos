@@ -12,14 +12,19 @@ namespace Shipping.ViewModelComposition
 {
     class ProductDetailsGetHandler : ICompositionRequestsHandler
     {
+        private readonly ShippingApi api;
+
+        public ProductDetailsGetHandler(ShippingApi api)
+        {
+            this.api = api;
+        }
+
         [HttpGet("products/details/{id}")]
         public async Task Handle(HttpRequest request)
         {
             var id = (string)request.HttpContext.GetRouteData().Values["id"];
 
-            var url = $"http://localhost:5004/api/shipping-options/product/{id}";
-            var client = new HttpClient();
-            var response = await client.GetAsync(url);
+            var response = await this.api.GetAsync($"/api/shipping-options/product/{id}");
 
             dynamic productShippingOptions = await response.Content.AsExpando();
 

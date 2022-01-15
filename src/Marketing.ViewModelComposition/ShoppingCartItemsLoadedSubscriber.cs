@@ -9,6 +9,13 @@ namespace Marketing.ViewModelComposition
 {
     public class ShoppingCartItemsLoadedSubscriber : ICompositionEventsSubscriber
     {
+        private readonly MarketingApi api;
+
+        public ShoppingCartItemsLoadedSubscriber(MarketingApi api)
+        {
+            this.api = api;
+        }
+
         [HttpGet("/ShoppingCart")]
         public void Subscribe(ICompositionEventsPublisher publisher)
         {
@@ -16,10 +23,7 @@ namespace Marketing.ViewModelComposition
             {
                 var ids = String.Join(",", @event.CartItemsViewModel.Keys);
 
-                var url = $"http://localhost:5002/api/product-details/products/{ids}";
-                var client = new HttpClient();
-
-                var response = await client.GetAsync(url).ConfigureAwait(false);
+                var response = await this.api.GetAsync($"api/product-details/products/{ids}").ConfigureAwait(false);
 
                 dynamic[] productDetails = await response.Content.AsExpandoArray().ConfigureAwait(false);
 

@@ -10,14 +10,19 @@ namespace Warehouse.ViewModelComposition
 {
     class ProductDetailsGetHandler : ICompositionRequestsHandler
     {
+        private readonly WarehouseApi api;
+
+        public ProductDetailsGetHandler(WarehouseApi api)
+        {
+            this.api = api;
+        }
+
         [HttpGet("products/details/{id}")]
         public async Task Handle(HttpRequest request)
         {
             var id = (string)request.HttpContext.GetRouteData().Values["id"];
 
-            var url = $"http://localhost:5003/api/inventory/product/{id}";
-            var client = new HttpClient();
-            var response = await client.GetAsync(url);
+            var response = await this.api.GetAsync($"/api/inventory/product/{id}");
 
             dynamic stockItem = await response.Content.AsExpando();
             var vm = request.GetComposedResponseModel();

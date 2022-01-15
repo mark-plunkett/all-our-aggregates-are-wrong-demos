@@ -2,13 +2,19 @@
 using Marketing.ViewModelComposition.Events;
 using ServiceComposer.AspNetCore;
 using System;
-using System.Net.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Marketing.ViewModelComposition
 {
     class AvailableProductsLoadedSubscriber : ICompositionEventsSubscriber
     {
+        private readonly MarketingApi api;
+
+        public AvailableProductsLoadedSubscriber(MarketingApi api)
+        {
+            this.api = api;
+        }
+
         [HttpGet("/")]
         public void Subscribe(ICompositionEventsPublisher publisher)
         {
@@ -16,10 +22,7 @@ namespace Marketing.ViewModelComposition
             {
                 var ids = String.Join(",", @event.AvailableProductsViewModel.Keys);
 
-                var url = $"http://localhost:5002/api/product-details/products/{ids}";
-                var client = new HttpClient();
-
-                var response = await client.GetAsync(url);
+                var response = await this.api.GetAsync($"api/product-details/products/{ids}");
 
                 dynamic[] productDetails = await response.Content.AsExpandoArray();
 

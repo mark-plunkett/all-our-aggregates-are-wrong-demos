@@ -9,18 +9,22 @@ namespace Marketing.Api.Controllers
     [ApiController]
     public class AvailableProductsController : ControllerBase
     {
+        private readonly MarketingContext db;
+
+        public AvailableProductsController(MarketingContext db)
+        {
+            this.db = db;
+        }
+
         [HttpGet]
         [Route("products")]
         public IEnumerable<int> Get()
         {
-            using (var db = MarketingContext.Create())
-            {
-                var all = db.ProductsDetails
-                    .Select(p => p.Id)
-                    .ToArray();
+            var all = db.ProductsDetails
+                .Select(p => p.Id)
+                .ToArray();
 
-                return all;
-            }
+            return all;
         }
     }
 }

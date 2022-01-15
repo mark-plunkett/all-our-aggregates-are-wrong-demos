@@ -10,30 +10,34 @@ namespace Warehouse.Service.Handlers
 {
     class AddItemToCartHandler : IHandleMessages<AddItemToCart>
     {
+        private readonly WarehouseContext db;
+
+        public AddItemToCartHandler(WarehouseContext db)
+        {
+            this.db = db;
+        }
+
         public async Task Handle(AddItemToCart message, IMessageHandlerContext context)
         {
-            using (var db = WarehouseContext.Create())
+            var requestAlreadyHandled = await db.ShoppingCartItems
+                .SingleOrDefaultAsync(o => o.RequestId == message.RequestId) != null;
+
+            if (!requestAlreadyHandled)
             {
-                var requestAlreadyHandled = await db.ShoppingCartItems
-                    .SingleOrDefaultAsync(o => o.RequestId == message.RequestId) != null;
+                var stockItem = db.StockItems
+                    .Where(o => o.ProductId == message.ProductId)
+                    .Single();
 
-                if (!requestAlreadyHandled)
+                db.ShoppingCartItems.Add(new ShoppingCartItem()
                 {
-                    var stockItem = db.StockItems
-                        .Where(o => o.ProductId == message.ProductId)
-                        .Single();
+                    CartId = message.CartId,
+                    RequestId = message.RequestId,
+                    ProductId = message.ProductId,
+                    Inventory = stockItem.Inventory,
+                    Quantity = message.Quantity
+                });
 
-                    db.ShoppingCartItems.Add(new ShoppingCartItem()
-                    {
-                        CartId = message.CartId,
-                        RequestId = message.RequestId,
-                        ProductId = message.ProductId,
-                        Inventory = stockItem.Inventory,
-                        Quantity = message.Quantity
-                    });
-
-                    await db.SaveChangesAsync();
-                }
+                await db.SaveChangesAsync();
             }
         }
     }

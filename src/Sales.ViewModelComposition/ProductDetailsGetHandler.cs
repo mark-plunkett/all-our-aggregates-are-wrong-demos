@@ -10,14 +10,19 @@ namespace Sales.ViewModelComposition
 {
     class ProductDetailsGetHandler : ICompositionRequestsHandler
     {
+        private readonly SalesApi api;
+
+        public ProductDetailsGetHandler(SalesApi api)
+        {
+            this.api = api;
+        }
+
         [HttpGet("products/details/{id}")]
         public async Task Handle(HttpRequest request)
         {
             var id = (string)request.HttpContext.GetRouteData().Values["id"];
 
-            var url = $"http://localhost:5001/api/prices/product/{id}";
-            var client = new HttpClient();
-            var response = await client.GetAsync(url);
+            var response = await this.api.GetAsync($"/api/prices/product/{id}");
 
             dynamic productPrice = await response.Content.AsExpando();
             var vm = request.GetComposedResponseModel();

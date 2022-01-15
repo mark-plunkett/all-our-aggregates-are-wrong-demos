@@ -11,20 +11,24 @@ namespace Sales.Service.Handlers
 {
     class ShoppingCartGotInactiveHandler : IHandleMessages<ShoppingCartGotInactive>
     {
+        private readonly SalesContext db;
+
+        public ShoppingCartGotInactiveHandler(SalesContext db)
+        {
+            this.db = db;
+        }
+
         public async Task Handle(ShoppingCartGotInactive message, IMessageHandlerContext context)
         {
             Console.WriteLine($"Ready to wipe cart {message.CartId}.", Color.Yellow);
 
-            using (var db = SalesContext.Create())
+            var cart = await db.ShoppingCarts
+                .Where(o => o.Id == message.CartId)
+                .SingleOrDefaultAsync();
+            if (cart != null)
             {
-                var cart = await db.ShoppingCarts
-                    .Where(o => o.Id == message.CartId)
-                    .SingleOrDefaultAsync();
-                if (cart != null)
-                {
-                    db.ShoppingCarts.Remove(cart);
-                    await db.SaveChangesAsync();
-                }
+                db.ShoppingCarts.Remove(cart);
+                await db.SaveChangesAsync();
             }
 
             Console.WriteLine($"Cart {message.CartId} wiped.", Color.Green);

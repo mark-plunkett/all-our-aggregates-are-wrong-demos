@@ -1,4 +1,7 @@
-﻿using NServiceBus;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using NServiceBus;
+using Shipping.Data;
 using System;
 using System.Threading.Tasks;
 
@@ -11,10 +14,10 @@ namespace Shipping.Service
             var serviceName = typeof(Program).Namespace;
             Console.Title = serviceName;
 
-            var config = new EndpointConfiguration(serviceName);
-            config.ApplyCommonConfiguration();
-            config.ReportCustomChecksTo(serviceControlQueue: "Particular.ServiceControl");
-            var recoverabilityConfig = config.Recoverability();
+            var endpointConfig = new EndpointConfiguration(serviceName);
+            endpointConfig.ApplyCommonConfiguration();
+            endpointConfig.ReportCustomChecksTo(serviceControlQueue: "Particular.ServiceControl");
+            var recoverabilityConfig = endpointConfig.Recoverability();
             recoverabilityConfig.Immediate(immediate => 
             {
                 immediate.NumberOfRetries(1);
@@ -25,12 +28,26 @@ namespace Shipping.Service
                 delayed.TimeIncrease(TimeSpan.FromSeconds(5));
             });
 
-            var endpointInstance = await Endpoint.Start(config);
+            var services = BuildServices();
+            var endpoint = EndpointWithExternallyManagedServiceProvider.Create(endpointConfig, services);
+            
+            var endpointInstance = await endpoint.Start(new DefaultServiceProviderFactory().CreateServiceProvider(services));
 
             Console.WriteLine($"{serviceName} sarted. Press any key to stop.");
             Console.ReadLine();
 
             await endpointInstance.Stop();
+        }
+
+        static IServiceCollection BuildServices()
+        {
+            IConfiguration config = new ConfigurationBuilder()
+                .AddEnvironmentVariables()
+                .Build();
+
+            var services = new ServiceCollection();
+            services.RegisterShippingContext(config);
+            return services;
         }
     }
 }
